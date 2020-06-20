@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.laioffer.tinnews.R;
 import com.laioffer.tinnews.databinding.FragmentSaveBinding;
+import com.laioffer.tinnews.model.Article;
 import com.laioffer.tinnews.model.SaveViewModel;
 import com.laioffer.tinnews.repository.NewsRepository;
 import com.laioffer.tinnews.repository.NewsViewModelFactory;
@@ -39,6 +41,10 @@ public class SaveFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        SavedNewsAdapter savedNewsAdapter = new SavedNewsAdapter();
+        binding.recyclerView.setAdapter(savedNewsAdapter);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
         NewsRepository repository = new NewsRepository(getContext());
         viewModel = new ViewModelProvider(this, new NewsViewModelFactory(repository)).get(SaveViewModel.class);
         viewModel
@@ -48,8 +54,19 @@ public class SaveFragment extends Fragment {
                         savedArticles -> {
                             if (savedArticles != null) {
                                 Log.d("SaveFragment", savedArticles.toString());
+                                savedNewsAdapter.setArticles(savedArticles);
                             }
                         });
+        savedNewsAdapter.setOnClickListener(new SavedNewsAdapter.OnClickListener() {
+            @Override
+            public void onClick(Article article){
+
+            }
+            @Override
+            public void unLike(Article article){
+                viewModel.deleteSavedArticle(article);
+            }
+        })
     }
 
     @Override
